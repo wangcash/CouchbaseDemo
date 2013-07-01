@@ -7,21 +7,53 @@
 //
 
 #import "WWAppDelegate.h"
+#import <CouchbaseLite/CouchbaseLite.h>
 
 #import "WWMasterViewController.h"
 
+// The name of the database the app will use.
+#define kDatabaseName @"my-database"
+
 @implementation WWAppDelegate
+
+@synthesize database;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
+  NSLog(@"===== %s =====", __FUNCTION__);
+  
+#ifdef kDefaultSyncDbURL
+  // Register the default value of the pref for the remote database URL to sync with:
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSDictionary *appdefaults = [NSDictionary dictionaryWithObject:kDefaultSyncDbURL
+                                                          forKey:@"syncpoint"];
+  [defaults registerDefaults:appdefaults];
+  [defaults synchronize];
+#endif
+  
+  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+  // Override point for customization after application launch.
 
   WWMasterViewController *masterViewController = [[WWMasterViewController alloc] initWithNibName:@"WWMasterViewController" bundle:nil];
   self.navigationController = [[UINavigationController alloc] initWithRootViewController:masterViewController];
   self.window.rootViewController = self.navigationController;
-    [self.window makeKeyAndVisible];
-    return YES;
+  
+
+  // Start the Couchbase Mobile server:
+  NSError *error;
+  self.database = [[CBLManager sharedInstance] createDatabaseNamed:kDatabaseName
+                                                             error:&error];
+  if (!self.database)
+    NSLog(@"%@\n%@", @"Couldn't open database", error.localizedDescription);
+  
+  [masterViewController useDatabase:self.database];
+  
+  [self.window makeKeyAndVisible];
+  return YES;
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  exit(0);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -50,5 +82,6 @@
 {
   // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
+
 
 @end

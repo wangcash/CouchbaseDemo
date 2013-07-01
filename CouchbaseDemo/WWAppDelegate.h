@@ -8,7 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+@class CBLDatabase;
+
 @interface WWAppDelegate : UIResponder <UIApplicationDelegate>
+
+@property (nonatomic, strong) CBLDatabase *database;
 
 @property (strong, nonatomic) UIWindow *window;
 

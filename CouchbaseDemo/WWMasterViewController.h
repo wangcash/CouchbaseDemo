@@ -8,10 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+@class CBLDatabase;
 @class WWDetailViewController;
 
-@interface WWMasterViewController : UITableViewController
+@interface WWMasterViewController : UITableViewController {
+
+}
 
 @property (strong, nonatomic) WWDetailViewController *detailViewController;
+
+- (void)useDatabase:(CBLDatabase *)aDatabase;
 
 @end
